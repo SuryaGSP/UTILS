@@ -475,36 +475,10 @@ private:
 		ss << message;
 		return ss.str();
 	}
-    void RotateLogFile1()
-    {
-      ++logFilesCount;
-      std::cout << logFilesCount << std::endl;
-      if (logFilesCount >= 10)
-      {
-        logFilesCount = 1;
-      }
-      std::stringstream newFile;
-      time_t t;
-      time(&t);
-      newFile << logFileName << "_" << logFilesCount << "." << extension;
-      std::string fileName = productDir + newFile.str();
-      remove(fileName.c_str());
-      while (rename(fullLogFileName.c_str(), fileName.c_str()));
-      std::stringstream actualFileName;
-      time(&t);
-      actualFileName << logFileName << "." << extension;
-      fullLogFileName = productDir + actualFileName.str();
-      fptr = fopen(fullLogFileName.c_str(), "a+");
-      if (fptr)
-      {
-        fclose(fptr);
-      }
-    }
 	void RotateLogFile()
 	{
 		++logFilesCount;
-        std::cout << logFilesCount << std::endl;
-		if (logFilesCount >= 10)
+        if (logFilesCount >= 10)
 		{
 			logFilesCount = 1;
 		}
