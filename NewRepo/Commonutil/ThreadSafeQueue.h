@@ -26,7 +26,7 @@ public:
 		std::lock_guard<std::mutex> lock(stdMutex);
 		if (dataStore.size() < maxsize)
 		{
-			dataStore.push(data);
+			dataStore.push_back(data); //here
 			readwait.notify_one();
 			return true;
 		}
@@ -41,19 +41,31 @@ public:
 			writewait.wait(lock);
 		}
 		++count;
-		data.offset = count;
+		//data.offset = count;
 		dataStore.push_back(data);
 		readwait.notify_one();
 		return true;
 	}
-
+    bool Push_front(DATATYPE data)
+    {
+      std::unique_lock<std::mutex> lock(stdMutex);
+      while (dataStore.size() >= maxsize)
+      {
+        writewait.wait(lock);
+      }
+      ++count;
+      //data.offset = count;
+      dataStore.push_front(data);
+      readwait.notify_one();
+      return true;
+    }
 	bool TryPop(DATATYPE& data)
 	{
 		std::lock_guard<std::mutex> lock(stdMutex);
 		if (!dataStore.empty())
 		{
-			data = std::move(dataStore.back());
-			dataStore.pop();
+			data = dataStore.front();
+			dataStore.pop_front();   //here
 			writewait.notify_one();
 			return true;
 		}

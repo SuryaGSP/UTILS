@@ -12,7 +12,7 @@
 #endif
 namespace SystemUtil
 {
-	void ForEachMatchingFile(std::function<void(const char*, const char*)> callback, const char* filename, std::vector<std::string> pattern);
+	void ForEachMatchingFile(std::function<void(const char*, _WIN32_FIND_DATAA)> callback, const char* filename, std::string pattern);
 	void RemoveFile(const char* path, const char* filename);
 	std::string ExecuteSystemCommand(const char* cmd);
 	long long GetFileSizeInBytes(char* fileName);

@@ -9,7 +9,7 @@
 #include <string>
 #include <map>
 
-// Common Unix to Windows Translation (!) defines'
+// Common Unix to Windows Translation (!) defines's
 #ifdef UNIX
 	#define stricmp(a,b) strcasecmp(a,b)
 	#define strnicmp(a,b,c) strncasecmp(a,b,c)

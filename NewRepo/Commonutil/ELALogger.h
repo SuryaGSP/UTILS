@@ -1,15 +1,16 @@
 #pragma once
-
+#pragma warning(disable:4996)
 /* Hanlded path, directory and name default values
  * To Hnalde support for console logging
  */
-
 #include <string>
 #include <sstream>
 #include <mutex>
 #include <vector>
+#include <iostream>
 #ifdef WINDOWS
 #include <Windows.h>
+#include<errno.h>
 #else
 #include <unistd.h>
 #include <libgen.h>
@@ -120,11 +121,13 @@ namespace LoggerUtil
 #ifdef LOGAGENT
 		WCHAR path[MAX_PATH];
 		GetModuleFileNameW(NULL, path, MAX_PATH);
-		return GetFileNameWithOutExtension(WideCharToMultiByte(path));
+        std::string tempStringPathName = WideCharToMultiByte(path);
+		return GetFileNameWithOutExtension(tempStringPathName);
 #else
 		TCHAR path[MAX_PATH];
 		GetModuleFileName(nullptr, path, MAX_PATH);
-		return GetFileNameWithOutExtension(std::string(path));
+        std::string tempStringPathName = std::string(path);
+		return GetFileNameWithOutExtension(tempStringPathName);
 #endif
 #else
 		char result[256];
@@ -153,7 +156,6 @@ enum LogLevel
 class MessageBuilder
 {
 public:
-
 #   define ELA_SIMPLE_LOG(LOG_TYPE)\
 		inline MessageBuilder& operator<<(LOG_TYPE msg) {\
 			stream << msg; \
@@ -473,10 +475,35 @@ private:
 		ss << message;
 		return ss.str();
 	}
-
+    void RotateLogFile1()
+    {
+      ++logFilesCount;
+      std::cout << logFilesCount << std::endl;
+      if (logFilesCount >= 10)
+      {
+        logFilesCount = 1;
+      }
+      std::stringstream newFile;
+      time_t t;
+      time(&t);
+      newFile << logFileName << "_" << logFilesCount << "." << extension;
+      std::string fileName = productDir + newFile.str();
+      remove(fileName.c_str());
+      while (rename(fullLogFileName.c_str(), fileName.c_str()));
+      std::stringstream actualFileName;
+      time(&t);
+      actualFileName << logFileName << "." << extension;
+      fullLogFileName = productDir + actualFileName.str();
+      fptr = fopen(fullLogFileName.c_str(), "a+");
+      if (fptr)
+      {
+        fclose(fptr);
+      }
+    }
 	void RotateLogFile()
 	{
 		++logFilesCount;
+        std::cout << logFilesCount << std::endl;
 		if (logFilesCount >= 10)
 		{
 			logFilesCount = 1;
@@ -487,7 +514,7 @@ private:
 		newFile << logFileName << "_" << logFilesCount << "." << extension;
 		std::string fileName = productDir + newFile.str();
 		remove(fileName.c_str());
-		rename(fullLogFileName.c_str(), fileName.c_str());
+        while(rename(fullLogFileName.c_str(), fileName.c_str()));
 		std::stringstream actualFileName;
 		time(&t);
 		actualFileName << logFileName << "." << extension;
